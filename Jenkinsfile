@@ -21,4 +21,16 @@ echo 'Deploying....'
 }
 
 }
+
+  post{
+    ///////////
+    always{
+
+      echo "post building condition"
+    }
+
+    failure{
+      echo "post action if failed"
+    }
+  }
 }
