@@ -9,6 +9,11 @@ echo 'Building..'
 }
 stage('Test') {
 steps {
+  when{
+    expression{
+      flag==flase
+    }
+  }
 echo 'Testing..'
 // Here you can define commands for your tests
 }
