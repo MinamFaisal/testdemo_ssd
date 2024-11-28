@@ -1,52 +1,56 @@
 pipeline {
-agent any
+    agent any
 
-  tools{
-    maven 'Maven'
-  }
-environment{
-  NEW_VERSION = '1.3.0'
-}
-stages {
-stage('Build') {
-steps {
-echo 'Building..'
-  
-// Here you can define commands for your build
-echo "Building version ${NEW_VERSION}"
-
-sh "nvm install"
-}
-}
-stage('Test') {
-steps {
-  when{
-    expression{
-      flag==flase
-    }
-  }
-echo 'Testing..'
-// Here you can define commands for your tests
-}
-}
-stage('Deploy') {
-steps {
-echo 'Deploying....'
-// Here you can define commands for your deployment
-}
-}
-
-}
-
-  post{
-    ///////////
-    always{
-
-      echo "post building condition"
+    tools {
+        maven 'Maven' // Ensure Maven is configured in Jenkins
     }
 
-    failure{
-      echo "post action if failed"
+    environment {
+        NEW_VERSION = '1.3.0'
+        FLAG = false // Define the flag variable
     }
-  }
+
+    stages {
+        stage('Build') {
+            steps {
+                echo 'Building..'
+                echo "Building version ${NEW_VERSION}"
+
+                // Ensure Node.js environment is properly loaded for nvm
+                sh """
+                source ~/.nvm/nvm.sh
+                nvm install
+                """
+            }
+        }
+
+        stage('Test') {
+            when {
+                expression {
+                    env.FLAG == "false" // Condition to skip or execute the stage
+                }
+            }
+            steps {
+                echo 'Testing..'
+                // Add your testing commands here
+            }
+        }
+
+        stage('Deploy') {
+            steps {
+                echo 'Deploying....'
+                // Add your deployment commands here
+            }
+        }
+    }
+
+    post {
+        always {
+            echo "Post building condition"
+        }
+
+        failure {
+            echo "Post action if failed"
+        }
+    }
 }
