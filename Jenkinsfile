@@ -1,3 +1,5 @@
+flag=true
+
 pipeline {
     agent any
 
@@ -5,8 +7,14 @@ pipeline {
         maven 'Maven' // Ensure Maven is configured in Jenkins Global Tool Configuration
     }
 
+    parameters {
+        string(name: 'VERSION', defaultValue: '', description: 'Version to deploy on production')
+        choice(name: 'VERSION', choices: ['1.1.0', '1.2.0', '1.3.0'], description: 'Select the version to deploy')
+        booleanParam(name: 'executeTests', defaultValue: true, description: 'Execute tests before deployment')
+    }
+
     environment {
-        NEW_VERSION = '1.3.0'
+        NEW_VERSION = "${params.VERSION ?: '1.3.0'}" // Default to 1.3.0 if no version is provided
         FLAG = "false" // Define the flag variable as a string to avoid type issues
     }
 
@@ -36,7 +44,7 @@ pipeline {
         stage('Test') {
             when {
                 expression {
-                    return env.FLAG == "false" // Ensure FLAG comparison works correctly
+                    return params.executeTests && env.FLAG == "false" // Execute only if executeTests is true and FLAG is false
                 }
             }
             steps {
